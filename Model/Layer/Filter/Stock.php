@@ -21,7 +21,7 @@ class Stock extends \Magento\Catalog\Model\Layer\Filter\AbstractFilter
     /**
      * @var CollectionFactory
      */
-    protected $collectionFactory;
+    protected $_stockCollectionFactory;
     /**
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param \Magento\Catalog\Model\Layer\Filter\ItemFactory $filterItemFactory
@@ -48,7 +48,7 @@ class Stock extends \Magento\Catalog\Model\Layer\Filter\AbstractFilter
         $this->_scopeConfig = $scopeConfig;
         $this->_customerSessionFactory = $customerSessionFactory;
         $this->_warehouseRepository = $warehouseRepository;
-        $this->collectionFactory = $collectionFactory;
+        $this->_stockCollectionFactory = $collectionFactory;
         $this->_productCollectionFactory = $productCollectionFactory;
         parent::__construct($filterItemFactory, $storeManager, $layer, $itemDataBuilder, $data);
         $this->_requestVar = $this->_scopeConfig->getValue(
@@ -79,11 +79,9 @@ class Stock extends \Magento\Catalog\Model\Layer\Filter\AbstractFilter
         };
         $attributeValue    = explode(',', $filter);
         $this->_activeFilter = true;
-        $filter = 0;
-        $collection = $this->getLayer()->getProductCollection();
-        $collection->setFlag(self::IN_STOCK_COLLECTION_FLAG, true);
-        $collection->getSelect()->where('stock_status_index.stock_status = ?', $filter);
-
+        $filter = 1;
+        $collection = $this->_stockCollectionFactory->create()
+                         ->addFieldToFilter("is_saleable", $filter);
         $this->getLayer()->getState()->addFilter(
             $this->_createItem($this->getLabel($filter), $filter)
         );
